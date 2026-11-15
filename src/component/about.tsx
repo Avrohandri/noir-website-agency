@@ -38,6 +38,13 @@ export default function Tentang(){
             packets.find((packet) => packet.id === idFinals) ?? null
         )
     }
+
+    function resetTombol(){
+        setJenisWebsite('')
+        setDescWebsite('')
+        setPriceWebsite('')
+        setPaketRekomendasi(null)
+    }
     return( 
         <>
         <div id="tentang" className="scroll-mt-5 pt-15 pl-35 pr-35 pb-10">
@@ -97,7 +104,7 @@ export default function Tentang(){
                     </div>
                 </div>
                 <div className="rounded-md bg-zinc-800/50 p-2">
-                    <h1 className="text-center p-4">Berapa Budget Kebutuhan Kamu?</h1><hr className="text-gray-500/50"/>
+                    <h1 className="text-center p-4">Berapa Budget Kebutuhan Kamu?<br />(optional)</h1><hr className="text-gray-500/50"/>
                     <div className="space-y-3 p-4">
                     {['Rp. 999.000,00 - 2.999.000,00','Rp.3.000.000,00 - 6.999.000,00', 'Rp. 7.000.000,00 - dst'].map((opsi: any) => {
                             const selected = priceWebsite === opsi
@@ -126,7 +133,7 @@ export default function Tentang(){
                         <>
                         <div className="grid grid-cols-2 gap-5 h-full flex-col rounded-xl p-6 hover:scale-102 bg-zinc-900/50 border border-zinc-700 hover:border-zinc-400 transition duration-300">
                             <div className="col-span-2">
-                                <h1 className="text-center text-3xl p-4">Ini Paket yang Paling Cocok Sama Kamu!</h1><hr className="text-gray-800"/>
+                                <h1 className="text-center text-3xl p-4">Ini Paket yang Paling Cocok Sama Kamu! <button onClick={resetTombol} className="text-sm text-gray-500 cursor-pointer">(reset)</button></h1><hr className="text-gray-800"/>
                             </div>
                             <div className="pt-4">
                                 <h1 className="text-center p-2 text-xl"><span className="bg-linear-to-r from-teal-400 to-sky-400 bg-clip-text text-transparent">{paketRekomendasi.title}</span></h1>
@@ -146,11 +153,14 @@ export default function Tentang(){
                     )}
                 </div>
             </div>
-            <h1 id="paket" className="scroll-mt-20 text-6xl text-center"><span className="bg-linear-to-r from-lime-500 to-teal-400 bg-clip-text text-transparent">Check </span>Paket ini Ya!</h1>
+            <hr className="text-gray-800 p-6" />
+            <h1 id="paket" className="scroll-mt-20 text-6xl text-center"><span className="bg-linear-to-r from-lime-500 to-teal-400 bg-clip-text text-transparent">Check </span>Paket Lengkapnya Juga!</h1>
+            <p className="text-center text-sm text-gray-400 p-4">Semua paket sudah termasuk gratis domain, hosting premium tahun pertama, dan garansi maintenance.</p>
             <div className="grid grid-cols-3 gap-5 pt-15 pl-25 pr-25 pb-15">
                 <TampilkanPaket packets={packets} />
             </div>
         </motion.div>
+            <hr className="text-gray-800 p-6" />
         </div>
         </>
     )
