@@ -1,7 +1,7 @@
 import gsap from 'gsap'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { hero } from '../content'
-import NebulaCanvas from './NebulaCanvas'
+import GalaxyCanvas from './GalaxyCanvas'
 import { PillLink } from './ui'
 
 export default function Hero({ ready }: { ready: boolean }) {
@@ -29,8 +29,14 @@ export default function Hero({ ready }: { ready: boolean }) {
 
   return (
     <section id="beranda" ref={root} className="relative flex min-h-svh items-center justify-center overflow-hidden">
-      <NebulaCanvas />
+      <GalaxyCanvas />
       <div className="absolute inset-0 bg-black/20" />
+      {/* Scrim lembut di belakang teks supaya tetap terbaca di atas lengan galaksi */}
+      <div
+        aria-hidden
+        className="absolute inset-0"
+        style={{ background: 'radial-gradient(38% 32% at 50% 48%, rgba(10,10,10,0.6), transparent 100%)' }}
+      />
       <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-bg to-transparent" />
 
       <div className="relative z-10 flex flex-col items-center px-6 pt-24 pb-28 text-center">

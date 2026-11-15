@@ -1,7 +1,7 @@
 import gsap from 'gsap'
 import { useLayoutEffect, useRef } from 'react'
 import { brand, contact } from '../content'
-import NebulaCanvas from './NebulaCanvas'
+import GalaxyCanvas from './GalaxyCanvas'
 import { Arrow, Italic, PillLink } from './ui'
 
 export default function Contact() {
@@ -19,7 +19,7 @@ export default function Contact() {
 
   return (
     <footer id="kontak" className="relative overflow-hidden bg-bg pt-16 pb-8 md:pt-20 md:pb-12">
-      <NebulaCanvas flip />
+      <GalaxyCanvas flip />
       <div className="absolute inset-0 bg-black/60" />
       <div className="absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-bg to-transparent" />
 
