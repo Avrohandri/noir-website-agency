@@ -1,17 +1,14 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import Navbar from './component/navbar'
-import Dashboard from './component/dashboard'
-import Tentang from './component/about'
-import Layanan from './component/layanan'
+import App from './App'
 import './index.css'
+
+// Intro selalu mulai dari atas supaya loading screen dan reveal hero terlihat utuh
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual'
+if (!location.hash) window.scrollTo(0, 0)
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <Navbar />
-    <Dashboard />
-    <Tentang />
-    <Layanan />
-    {/* <Footer /> */}
+    <App />
   </StrictMode>,
 )

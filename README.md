@@ -1,32 +1,22 @@
-# React + TypeScript + Vite
+# NOIR Website Agency
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Landing page agency jasa pembuatan website dengan tema noir dan nebula monokrom.
 
-Currently, two official plugins are available:
+Proyek ini melanjutkan [urDrek0/noir-company-profile](https://github.com/urDrek0/noir-company-profile).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Stack
 
-## React Compiler
+Vite, React, TypeScript, Tailwind CSS v4, GSAP (ScrollTrigger), Motion. Background nebula memakai fragment shader WebGL murni di `src/gl/nebula.ts`.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Perintah
 
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev
+npm run build
+npm run lint
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Konten
+
+Semua copy dan data ada di `src/content.ts`. Harga, portofolio, statistik, FAQ, dan kontak masih data dummy. Ganti sebelum rilis.
