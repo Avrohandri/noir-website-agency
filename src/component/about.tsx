@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { motion } from "motion/react"
 import './style.css'
-import { div, p } from 'motion/react-client';
 
 export default function Tentang(){
     type paketUmum = {
@@ -16,19 +15,28 @@ export default function Tentang(){
         {id: 2, title: "Business Profile", desc: 'Solusi ideal untuk kredibilitas institusi, korporat, atau agensi profesional.',price: '3.499.000',fitur: [' Hingga 5-7 Halaman Menu', 'Gratis Domain .com & Cloud Hosting 1 Tahun', 'Desain UI/UX Eksklusif & Modern', 'Email Bisnis (nama@domainanda.com)', 'Integrasi Google Analytics & Meta Pixel', 'Form Kontak & Notifikasi WhatsApp', 'Pengerjaan 7 - 10 Hari Kerja', 'Garansi Maintenance 3 Bulan']},
         {id: 3, title: "E-Commerce / Custom", desc: 'Untuk toko online lengkap dengan sistem payment gateway otomatis.',price: '6.999.000',fitur: ['Katalog Produk Tanpa Batas', 'Payment Gateway (QRIS, VA, CC)', 'Integrasi Otomatis Ongkir JNE/SiCepat/dll', 'Dashboard Manajemen Order & Stok', 'Keamanan SSL & Proteksi DDOS', 'Training Penggunaan Website', ' Garansi Maintenance 6 Bulan']}
     ])
+    setPackets
     const [jenisWebsite, setJenisWebsite] = useState('')
     const [descWebsite, setDescWebsite] = useState('')
     const [priceWebsite, setPriceWebsite] = useState('')
     const [paketRekomendasi, setPaketRekomendasi] = useState<paketUmum | null>(null)
     function cariPaket(){
-        const jawaban = [jenisWebsite, descWebsite, priceWebsite]
-        console.log(jawaban)
         const idPaket = 
         jenisWebsite === 'Toko Online' ? 3 :
         jenisWebsite === 'Company Profile / Korporasi' ? 2 :
-        jenisWebsite === 'UMKM' ? 1 : null
-
-        setPaketRekomendasi(packets.find((packet) => packet.id === idPaket) ?? null)
+        jenisWebsite === 'UMKM' ? 1 : 0
+        const wheightPaket = 
+        descWebsite === 'Butuh Sistem Payment Gateway Otomatis' ? 3 : 
+        descWebsite === 'Profil Perusahaan, Agensi, atau Bisnis' ? 2 :
+        descWebsite === 'Promosi Produk atau Kampanye Promosi' ? 1 : 0
+        const priceComparator = 
+        priceWebsite === 'Rp. 7.000.000,00 - dst' ? 3 : 
+        priceWebsite === 'Rp.3.000.000,00 - 6.999.000,00' ? 2 :
+        priceWebsite === 'Rp. 999.000,00 - 2.999.000,00' ? 1 : 0
+        const idFinals: number =  Math.max(idPaket, Math.round(idPaket * 0.20 + wheightPaket * 0.79 + priceComparator * 0.01))
+        setPaketRekomendasi(
+            packets.find((packet) => packet.id === idFinals) ?? null
+        )
     }
     return( 
         <>
@@ -113,7 +121,7 @@ export default function Tentang(){
                 </div>
                 <div className="col-span-3">
                     {!paketRekomendasi ? (
-                        <p className="text-center bg-zinc-800/50 p-5 rounded-xl">Kamu Belom Memilih Paket..</p>
+                        <p className="text-center bg-zinc-800/50 p-5 rounded-xl">Kamu Belom Memasukan Kebutuhan Kamu, Sesuaikan Kebutuhan Kamu Yuk!</p>
                     ) : (
                         <>
                         <div className="grid grid-cols-2 gap-5 h-full flex-col rounded-xl p-6 hover:scale-102 bg-zinc-900/50 border border-zinc-700 hover:border-zinc-400 transition duration-300">
@@ -139,7 +147,7 @@ export default function Tentang(){
                 </div>
             </div>
             <h1 id="paket" className="scroll-mt-20 text-6xl text-center"><span className="bg-linear-to-r from-lime-500 to-teal-400 bg-clip-text text-transparent">Check </span>Paket ini Ya!</h1>
-            <div className="grid grid-cols-3 gap-10 pt-15 pl-25 pr-25 pb-15">
+            <div className="grid grid-cols-3 gap-5 pt-15 pl-25 pr-25 pb-15">
                 <TampilkanPaket packets={packets} />
             </div>
         </motion.div>
@@ -152,7 +160,7 @@ function TampilkanPaket({packets}: any){
     return(
         <>
         {packets.map((packet: any) => (           
-            <div className="flex h-full flex-col rounded-xl p-6 hover:scale-102 bg-zinc-900/50 border border-zinc-700 hover:border-zinc-400 transition duration-300">
+            <div key={packet.id} className="flex h-full flex-col rounded-xl p-6 hover:scale-102 bg-zinc-900/50 border border-zinc-700 hover:border-zinc-400 transition duration-300">
                 <h1 className="text-center p-2 text-xl"><span className="bg-linear-to-r from-teal-400 to-sky-400 bg-clip-text text-transparent">{packet.title}</span></h1>
                 <h1 className="text-center p-2 text-sm text-gray-500">Mulai dari<br /><span className="text-emerald-300/50 text-3xl">Rp. {packet.price}</span></h1>
                 <p className="text-justify text-sm p-3 text-gray-300">{packet.desc}</p>
