@@ -21,7 +21,9 @@ export default function Works() {
   useLayoutEffect(() => {
     if (!section.current) return
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    const ctx = gsap.context(() => {
+    // Pin + parallax hanya di desktop. Di HP kartu tersusun biasa supaya tidak menimpa judul.
+    const mm = gsap.matchMedia(section)
+    mm.add('(min-width: 768px)', () => {
       ScrollTrigger.create({
         trigger: section.current,
         start: 'top top',
@@ -31,17 +33,17 @@ export default function Works() {
       })
       if (reduced) return
       const st = { trigger: section.current, start: 'top bottom', end: 'bottom top', scrub: true }
-      gsap.fromTo(colA.current, { y: 120 }, { y: -160, ease: 'none', scrollTrigger: st })
-      gsap.fromTo(colB.current, { y: 320 }, { y: -420, ease: 'none', scrollTrigger: st })
-      gsap.utils.toArray<HTMLElement>('.work-card').forEach((el, i) => {
+      gsap.fromTo(colA.current, { y: 120 }, { y: -200, ease: 'none', scrollTrigger: st })
+      gsap.fromTo(colB.current, { y: 360 }, { y: -480, ease: 'none', scrollTrigger: st })
+      gsap.utils.toArray<HTMLElement>('.work-card-desktop').forEach((el, i) => {
         gsap.fromTo(
           el,
           { rotate: rotations[i] },
           { rotate: -rotations[i] / 2, ease: 'none', scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: true } },
         )
       })
-    }, section)
-    return () => ctx.revert()
+    })
+    return () => mm.revert()
   }, [])
 
   useEffect(() => {
@@ -58,24 +60,34 @@ export default function Works() {
   const left = works.filter((_, i) => i % 2 === 0)
   const right = works.filter((_, i) => i % 2 === 1)
 
-  const Card = ({ w }: { w: Work }) => (
+  const Card = ({ w, className = '' }: { w: Work; className?: string }) => (
     <button
       type="button"
       onClick={() => setOpen(w)}
-      className="work-card group pointer-events-auto relative block aspect-square w-full max-w-[320px] cursor-zoom-in overflow-hidden rounded-3xl border border-stroke bg-surface text-left shadow-2xl shadow-black/50"
+      className={`group pointer-events-auto relative isolate block w-full cursor-zoom-in overflow-hidden rounded-3xl border border-white/10 bg-surface text-left shadow-2xl shadow-black/70 transition-[border-color,box-shadow] duration-500 hover:border-white/30 hover:shadow-white/5 ${className}`}
       aria-label={`Lihat detail ${w.title}`}
     >
-      <Visual variant={w.variant} seed={w.id} compact />
-      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent p-4 pt-12 md:p-5">
-        <p className="text-[10px] uppercase tracking-[0.25em] text-muted md:text-xs">{w.kategori}</p>
-        <p className="mt-1 font-display text-lg italic text-text-primary md:text-2xl">{w.title}</p>
+      <Visual variant={w.variant} seed={w.id} />
+      <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 bg-gradient-to-t from-black from-30% via-black/85 to-transparent p-5 pt-24 md:p-7 md:pt-28">
+        <div>
+          <p className="text-[11px] uppercase tracking-[0.25em] text-muted md:text-xs">
+            {w.kategori} · {w.bidang}
+          </p>
+          <p className="mt-2 font-display text-3xl italic leading-none text-text-primary md:text-4xl">{w.title}</p>
+        </div>
+        <span
+          aria-hidden
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/20 bg-black/40 text-text-primary backdrop-blur-md transition-all duration-300 group-hover:border-transparent group-hover:bg-white group-hover:text-black md:h-12 md:w-12"
+        >
+          <Arrow />
+        </span>
       </div>
     </button>
   )
 
   return (
-    <section id="karya" ref={section} className="relative min-h-[300vh] bg-bg">
-      <div ref={content} className="relative z-10 flex h-screen flex-col items-center justify-center px-6 text-center">
+    <section id="karya" ref={section} className="relative bg-bg py-16 md:min-h-[320vh] md:py-0">
+      <div ref={content} className="relative z-10 flex flex-col items-center justify-center px-6 text-center md:h-screen">
         <div className="mb-5 flex items-center gap-3">
           <span className="h-px w-8 bg-stroke" />
           <span className="text-xs uppercase tracking-[0.3em] text-muted">Karya</span>
@@ -92,16 +104,32 @@ export default function Works() {
         </PillLink>
       </div>
 
-      <div className="pointer-events-none absolute inset-0 z-20 overflow-hidden">
-        <div className="mx-auto grid max-w-[1400px] grid-cols-2 gap-12 px-6 pt-[85vh] md:gap-40 md:px-10">
-          <div ref={colA} className="flex flex-col items-start gap-[38vh]">
+      {/* HP: daftar kartu biasa di bawah judul */}
+      <div className="mt-12 flex flex-col gap-5 px-6 md:hidden">
+        {works.map((w, i) => (
+          <motion.div
+            key={w.id}
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-40px' }}
+            transition={{ duration: 0.8, ease: EASE, delay: (i % 2) * 0.06 }}
+          >
+            <Card w={w} className="aspect-[4/3]" />
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Desktop: dua kolom parallax melewati judul yang di-pin */}
+      <div className="pointer-events-none absolute inset-0 z-20 hidden overflow-hidden md:block">
+        <div className="mx-auto grid max-w-[1440px] grid-cols-2 gap-24 px-10 pt-[90vh] lg:gap-40">
+          <div ref={colA} className="flex flex-col items-start gap-[34vh]">
             {left.map((w) => (
-              <Card key={w.id} w={w} />
+              <Card key={w.id} w={w} className="work-card-desktop aspect-[4/5] max-w-[min(30vw,460px)]" />
             ))}
           </div>
-          <div ref={colB} className="flex flex-col items-end gap-[38vh] pt-[30vh]">
+          <div ref={colB} className="flex flex-col items-end gap-[34vh] pt-[28vh]">
             {right.map((w) => (
-              <Card key={w.id} w={w} />
+              <Card key={w.id} w={w} className="work-card-desktop aspect-[4/5] max-w-[min(30vw,460px)]" />
             ))}
           </div>
         </div>
