@@ -1,7 +1,6 @@
 import gsap from 'gsap'
 import { useLayoutEffect, useRef } from 'react'
 import { brand, contact } from '../content'
-import GalaxyCanvas from './GalaxyCanvas'
 import { Arrow, Italic, PillLink } from './ui'
 
 export default function Contact() {
@@ -18,11 +17,7 @@ export default function Contact() {
   const text = Array.from({ length: 10 }, () => `${contact.marquee} • `).join('')
 
   return (
-    <footer id="kontak" className="relative overflow-hidden bg-bg pt-16 pb-8 md:pt-20 md:pb-12">
-      <GalaxyCanvas flip />
-      <div className="absolute inset-0 bg-black/60" />
-      <div className="absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-bg to-transparent" />
-
+    <footer id="kontak" className="relative overflow-hidden pt-16 pb-8 md:pt-20 md:pb-12">
       <div className="relative z-10">
         <div className="overflow-hidden whitespace-nowrap py-4" aria-hidden>
           <div ref={track} className="inline-block font-display text-6xl italic text-text-primary/15 md:text-8xl lg:text-9xl">

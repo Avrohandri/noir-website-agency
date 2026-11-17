@@ -1,9 +1,9 @@
 import { useEffect, useRef } from 'react'
 
-// Latar bintang kecil untuk section di antara hero dan footer.
+// Latar bintang kecil untuk semua section setelah hero, termasuk footer.
 // Canvas fixed di belakang konten, redup supaya teks tetap terbaca.
 // Sebagian bintang berkelip pelan. Reduced motion: bintang diam.
-type Star = { x: number; y: number; r: number; a: number; tw: number; ph: number; sp: number }
+type Star = { x: number; y: number; r: number; a: number; spark: boolean; tw: number; ph: number; sp: number }
 
 export default function Starfield() {
   const ref = useRef<HTMLCanvasElement>(null)
@@ -24,17 +24,21 @@ export default function Starfield() {
       canvas.width = Math.floor(w * dpr)
       canvas.height = Math.floor(h * dpr)
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-      const count = Math.round((w * h) / 5200)
+      const count = Math.round((w * h) / 4200)
       stars = Array.from({ length: count }, () => {
-        const big = Math.random() < 0.06
+        const roll = Math.random()
+        // spark: bintang terang yang berkelip jelas, dengan halo dan kilau silang saat puncak
+        const spark = roll < 0.07
+        const big = roll < 0.16
         return {
           x: Math.random() * w,
           y: Math.random() * h,
-          r: big ? 0.9 + Math.random() * 0.5 : 0.35 + Math.random() * 0.45,
-          a: big ? 0.45 + Math.random() * 0.2 : 0.12 + Math.random() * 0.28,
-          tw: Math.random() < 0.35 ? 0.5 + Math.random() * 0.4 : 0,
+          r: spark ? 1.1 + Math.random() * 0.6 : big ? 0.9 + Math.random() * 0.4 : 0.4 + Math.random() * 0.45,
+          a: spark ? 1 : big ? 0.55 + Math.random() * 0.25 : 0.2 + Math.random() * 0.32,
+          spark,
+          tw: spark ? 1 : Math.random() < 0.4 ? 0.4 + Math.random() * 0.4 : 0,
           ph: Math.random() * Math.PI * 2,
-          sp: 0.4 + Math.random() * 0.9,
+          sp: spark ? 0.6 + Math.random() * 1.1 : 0.4 + Math.random() * 0.9,
         }
       })
     }
@@ -43,20 +47,46 @@ export default function Starfield() {
       const w = window.innerWidth
       const h = window.innerHeight
       ctx.clearRect(0, 0, w, h)
+      ctx.fillStyle = '#eef1f8'
+      ctx.strokeStyle = '#eef1f8'
       const s = t / 1000
       for (const st of stars) {
-        const k = st.tw && !reduced ? 1 - st.tw * (0.5 + 0.5 * Math.sin(s * st.sp + st.ph)) : 1
+        const wave = 0.5 + 0.5 * Math.sin(s * st.sp + st.ph)
+        if (st.spark) {
+          // Kelip tajam: lama redup, sebentar menyala terang
+          const k = reduced ? 0.7 : 0.12 + 0.88 * Math.pow(wave, 3)
+          ctx.globalAlpha = 0.16 * k
+          ctx.beginPath()
+          ctx.arc(st.x, st.y, st.r * 4.5, 0, Math.PI * 2)
+          ctx.fill()
+          ctx.globalAlpha = k
+          ctx.beginPath()
+          ctx.arc(st.x, st.y, st.r, 0, Math.PI * 2)
+          ctx.fill()
+          if (k > 0.55) {
+            const len = st.r * 7 * k
+            ctx.globalAlpha = (k - 0.55) * 1.1
+            ctx.lineWidth = 0.6
+            ctx.beginPath()
+            ctx.moveTo(st.x - len, st.y)
+            ctx.lineTo(st.x + len, st.y)
+            ctx.moveTo(st.x, st.y - len)
+            ctx.lineTo(st.x, st.y + len)
+            ctx.stroke()
+          }
+          continue
+        }
+        const k = st.tw && !reduced ? 1 - st.tw * wave : 1
         ctx.globalAlpha = st.a * k
-        ctx.fillStyle = '#e8ecf5'
         ctx.beginPath()
         ctx.arc(st.x, st.y, st.r, 0, Math.PI * 2)
         ctx.fill()
       }
     }
 
-    // Kelip pelan cukup 20 fps
+    // Kelip cukup 30 fps
     const loop = (t: number) => {
-      if (t - last > 50) {
+      if (t - last > 33) {
         last = t
         draw(t)
       }
