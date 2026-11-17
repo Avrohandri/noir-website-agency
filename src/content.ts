@@ -204,17 +204,23 @@ export type Work = {
   bidang: string
   tahun: string
   desc: string
-  variant: Service['slug']
+  // Desain kartu poster di ring 3D (lihat WorkCreative.tsx)
+  creative: 'kopi' | 'batik' | 'klinik' | 'kost' | 'bengkel' | 'pajak' | 'glow' | 'properti' | 'kelas' | 'catering'
+  accent: string
 }
 
 // DUMMY: proyek contoh, belum ada klien nyata.
 export const works: Work[] = [
-  { id: 1, title: 'Kopi Senja', kategori: 'Landing Page', bidang: 'F&B', tahun: '2026', variant: 'landing', desc: 'Landing page promo menu musiman dengan tombol pesan lewat WhatsApp.' },
-  { id: 2, title: 'Batik Lestari', kategori: 'Toko Online', bidang: 'Fashion', tahun: '2026', variant: 'shop', desc: 'Toko online batik tulis dengan pembayaran QRIS dan ongkir otomatis.' },
-  { id: 3, title: 'Klinik Sehat Medika', kategori: 'Company Profile', bidang: 'Kesehatan', tahun: '2025', variant: 'profile', desc: 'Profil klinik dengan jadwal dokter dan peta lokasi cabang.' },
-  { id: 4, title: 'Kost Harmoni', kategori: 'Web App', bidang: 'Properti', tahun: '2026', variant: 'app', desc: 'Sistem reservasi kamar kost dengan dashboard pemilik.' },
-  { id: 5, title: 'Bengkel Jaya Motor', kategori: 'Landing Page', bidang: 'Otomotif', tahun: '2025', variant: 'landing', desc: 'Halaman booking servis dengan form leads ke WhatsApp admin.' },
-  { id: 6, title: 'Arunika Konsultan', kategori: 'Company Profile', bidang: 'Jasa Pajak', tahun: '2026', variant: 'profile', desc: 'Website konsultan pajak dengan artikel edukasi dan form konsultasi.' },
+  { id: 1, title: 'Kopi Senja', kategori: 'Landing Page', bidang: 'F&B', tahun: '2026', creative: 'kopi', accent: '#d9a066', desc: 'Landing page promo menu musiman dengan tombol pesan lewat WhatsApp.' },
+  { id: 2, title: 'Batik Lestari', kategori: 'Toko Online', bidang: 'Fashion', tahun: '2026', creative: 'batik', accent: '#b4532a', desc: 'Toko online batik tulis dengan pembayaran QRIS dan ongkir otomatis.' },
+  { id: 3, title: 'Klinik Sehat Medika', kategori: 'Company Profile', bidang: 'Kesehatan', tahun: '2025', creative: 'klinik', accent: '#2cc5b0', desc: 'Profil klinik dengan jadwal dokter dan peta lokasi cabang.' },
+  { id: 4, title: 'Kost Harmoni', kategori: 'Web App', bidang: 'Properti', tahun: '2026', creative: 'kost', accent: '#6aa8ff', desc: 'Sistem reservasi kamar kost dengan dashboard pemilik.' },
+  { id: 5, title: 'Bengkel Jaya Motor', kategori: 'Landing Page', bidang: 'Otomotif', tahun: '2025', creative: 'bengkel', accent: '#ef4444', desc: 'Halaman booking servis dengan form leads ke WhatsApp admin.' },
+  { id: 6, title: 'Arunika Konsultan', kategori: 'Company Profile', bidang: 'Jasa Pajak', tahun: '2026', creative: 'pajak', accent: '#e3c16f', desc: 'Website konsultan pajak dengan artikel edukasi dan form konsultasi.' },
+  { id: 7, title: 'Glow Skin Lab', kategori: 'Toko Online', bidang: 'Kecantikan', tahun: '2026', creative: 'glow', accent: '#f08bb5', desc: 'Toko skincare dengan bundling produk dan checkout QRIS.' },
+  { id: 8, title: 'Sinar Residence', kategori: 'Landing Page', bidang: 'Properti', tahun: '2026', creative: 'properti', accent: '#3fcf8e', desc: 'Landing page perumahan dengan simulasi cicilan dan form survei lokasi.' },
+  { id: 9, title: 'KelasKu', kategori: 'Web App', bidang: 'Edukasi', tahun: '2025', creative: 'kelas', accent: '#a48bfa', desc: 'Platform kursus online dengan progres belajar dan sertifikat.' },
+  { id: 10, title: 'Rasa Nusantara', kategori: 'Company Profile', bidang: 'Katering', tahun: '2026', creative: 'catering', accent: '#fb8c3c', desc: 'Profil katering dengan menu paket, galeri acara, dan form pesanan.' },
 ]
 
 // DUMMY: angka contoh.

@@ -1,49 +1,118 @@
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { AnimatePresence, motion } from 'motion/react'
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { works, type Work } from '../content'
 import { EASE } from '../ease'
-import { Arrow, Italic, PillLink } from './ui'
-import Visual from './Visual'
+import { Arrow, Container, Italic, PillLink, SectionHeader } from './ui'
+import WorkCreative from './WorkCreative'
 
-gsap.registerPlugin(ScrollTrigger)
-
-const rotations = [-4, 3, -2, 5, -5, 2]
+// Ring 3D: kartu ditempel di silinder dengan kamera tepat di pusatnya,
+// jadi tiap kartu menghadap kamera dan kartu di tepi tampak lebih besar.
+// Geometri dalam piksel desain di kanvas 1172 px, lalu kanvas di-scale ke layar.
+const W = 1172 // lebar kanvas desain
+const H = 400 // tinggi kanvas desain
+const R = 891 // jari-jari silinder = jarak perspektif (kamera di pusat)
+const N = 37 // jumlah kartu di ring, berulang dari 10 desain
+const STEP = 360 / N
+const CULL = 42 // kartu di luar +-42 derajat disembunyikan
+const SPEED = 3.2 // derajat per detik
+const CARD_Y = 196 // pusat vertikal kartu
+const HORIZON = CARD_Y + 302 // titik mata di bawah kartu: tepi atas kartu tampak miring
 
 export default function Works() {
-  const section = useRef<HTMLElement>(null)
-  const content = useRef<HTMLDivElement>(null)
-  const colA = useRef<HTMLDivElement>(null)
-  const colB = useRef<HTMLDivElement>(null)
+  const stage = useRef<HTMLDivElement>(null)
+  const cards = useRef<(HTMLButtonElement | null)[]>([])
+  const [k, setK] = useState(1)
   const [open, setOpen] = useState<Work | null>(null)
+  const drag = useRef({ down: false, x: 0, moved: 0 })
 
-  useLayoutEffect(() => {
-    if (!section.current) return
+  // Skala kanvas mengikuti lebar layar. Di HP kartu tetap besar dan ring terpotong di sisi.
+  useEffect(() => {
+    const fit = () => setK(Math.min(1.35, Math.max(0.92, window.innerWidth / W)))
+    fit()
+    window.addEventListener('resize', fit)
+    return () => window.removeEventListener('resize', fit)
+  }, [])
+
+  useEffect(() => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    // Pin + parallax hanya di desktop. Di HP kartu tersusun biasa supaya tidak menimpa judul.
-    const mm = gsap.matchMedia(section)
-    mm.add('(min-width: 768px)', () => {
-      ScrollTrigger.create({
-        trigger: section.current,
-        start: 'top top',
-        end: 'bottom bottom',
-        pin: content.current,
-        pinSpacing: false,
-      })
-      if (reduced) return
-      const st = { trigger: section.current, start: 'top bottom', end: 'bottom top', scrub: true }
-      gsap.fromTo(colA.current, { y: 120 }, { y: -200, ease: 'none', scrollTrigger: st })
-      gsap.fromTo(colB.current, { y: 360 }, { y: -480, ease: 'none', scrollTrigger: st })
-      gsap.utils.toArray<HTMLElement>('.work-card-desktop').forEach((el, i) => {
-        gsap.fromTo(
-          el,
-          { rotate: rotations[i] },
-          { rotate: -rotations[i] / 2, ease: 'none', scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: true } },
-        )
-      })
+    let phase = -2
+    let speed = SPEED
+    let target = SPEED
+    let last = performance.now()
+    let raf = 0
+    let visible = false
+
+    const place = () => {
+      for (let i = 0; i < N; i++) {
+        const el = cards.current[i]
+        if (!el) continue
+        const a = ((((i * STEP + phase) % 360) + 540) % 360) - 180
+        if (Math.abs(a) > CULL) {
+          el.style.visibility = 'hidden'
+          continue
+        }
+        el.style.visibility = 'visible'
+        const r = (a * Math.PI) / 180
+        const c = Math.cos(r)
+        el.style.transform = `translate3d(${R * Math.sin(r)}px,0,${R * (1 - c)}px) rotateY(${-a}deg)`
+        el.style.filter = `brightness(${(0.78 + 0.5 * (1 / c - 1)).toFixed(3)})`
+      }
+    }
+
+    const tick = (t: number) => {
+      const dt = Math.min((t - last) / 1000, 0.1)
+      last = t
+      speed += (target - speed) * Math.min(1, dt * 4)
+      if (!reduced && !drag.current.down) phase -= speed * dt
+      place()
+      if (visible) raf = requestAnimationFrame(tick)
+    }
+
+    const io = new IntersectionObserver(([e]) => {
+      visible = e.isIntersecting
+      cancelAnimationFrame(raf)
+      if (visible) {
+        last = performance.now()
+        raf = requestAnimationFrame(tick)
+      }
     })
-    return () => mm.revert()
+    if (stage.current) io.observe(stage.current)
+    place()
+
+    const el = stage.current!
+    const onEnter = () => (target = SPEED * 0.25)
+    const onLeave = () => (target = SPEED)
+    const onDown = (e: PointerEvent) => {
+      drag.current = { down: true, x: e.clientX, moved: 0 }
+    }
+    const onMove = (e: PointerEvent) => {
+      if (!drag.current.down) return
+      const dx = e.clientX - drag.current.x
+      drag.current.x = e.clientX
+      drag.current.moved += Math.abs(dx)
+      phase += dx * 0.07
+      if (!visible) place()
+    }
+    const onUp = () => {
+      drag.current.down = false
+    }
+    const onVis = () => (last = performance.now())
+    el.addEventListener('pointerenter', onEnter)
+    el.addEventListener('pointerleave', onLeave)
+    el.addEventListener('pointerdown', onDown)
+    window.addEventListener('pointermove', onMove)
+    window.addEventListener('pointerup', onUp)
+    document.addEventListener('visibilitychange', onVis)
+    return () => {
+      cancelAnimationFrame(raf)
+      io.disconnect()
+      el.removeEventListener('pointerenter', onEnter)
+      el.removeEventListener('pointerleave', onLeave)
+      el.removeEventListener('pointerdown', onDown)
+      window.removeEventListener('pointermove', onMove)
+      window.removeEventListener('pointerup', onUp)
+      document.removeEventListener('visibilitychange', onVis)
+    }
   }, [])
 
   useEffect(() => {
@@ -57,88 +126,101 @@ export default function Works() {
     }
   }, [open])
 
-  const left = works.filter((_, i) => i % 2 === 0)
-  const right = works.filter((_, i) => i % 2 === 1)
-
-  const Card = ({ w, className = '' }: { w: Work; className?: string }) => (
-    <button
-      type="button"
-      onClick={() => setOpen(w)}
-      className={`group pointer-events-auto relative isolate block w-full cursor-zoom-in overflow-hidden rounded-3xl border border-white/10 bg-surface text-left shadow-2xl shadow-black/70 transition-[border-color,box-shadow] duration-500 hover:border-white/30 hover:shadow-white/5 ${className}`}
-      aria-label={`Lihat detail ${w.title}`}
-    >
-      <Visual variant={w.variant} seed={w.id} />
-      <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 bg-gradient-to-t from-black from-30% via-black/85 to-transparent p-5 pt-24 md:p-7 md:pt-28">
-        <div>
-          <p className="text-[11px] uppercase tracking-[0.25em] text-muted md:text-xs">
-            {w.kategori} · {w.bidang}
-          </p>
-          <p className="mt-2 font-display text-3xl italic leading-none text-text-primary md:text-4xl">{w.title}</p>
-        </div>
-        <span
-          aria-hidden
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/20 bg-black/40 text-text-primary backdrop-blur-md transition-all duration-300 group-hover:border-transparent group-hover:bg-white group-hover:text-black md:h-12 md:w-12"
-        >
-          <Arrow />
-        </span>
-      </div>
-    </button>
-  )
+  const onCardClick = (w: Work) => {
+    // Abaikan klik yang sebenarnya akhir dari gerakan drag
+    if (drag.current.moved > 6) return
+    setOpen(w)
+  }
 
   return (
-    <section id="karya" ref={section} className="relative bg-bg py-16 md:min-h-[320vh] md:py-0">
-      <div ref={content} className="relative z-10 flex flex-col items-center justify-center px-6 text-center md:h-screen">
-        <div className="mb-5 flex items-center gap-3">
-          <span className="h-px w-8 bg-stroke" />
-          <span className="text-xs uppercase tracking-[0.3em] text-muted">Karya</span>
-          <span className="h-px w-8 bg-stroke" />
+    <section id="karya" className="relative overflow-hidden bg-bg pt-16 pb-8 md:pt-24 md:pb-12">
+      <Container>
+        <SectionHeader
+          eyebrow="Karya"
+          align="center"
+          title={
+            <>
+              Portofolio <Italic>pilihan</Italic>
+            </>
+          }
+          sub="Contoh proyek dari berbagai bidang usaha. Geser atau klik kartu untuk lihat detailnya."
+        />
+        <div className="-mt-4 flex justify-center md:-mt-6">
+          <PillLink href="#kontak" variant="ghost">
+            Diskusikan proyekmu <Arrow />
+          </PillLink>
         </div>
-        <h2 className="text-5xl font-light tracking-tight md:text-7xl lg:text-8xl">
-          Portofolio <Italic>pilihan</Italic>
-        </h2>
-        <p className="mx-auto mt-5 max-w-md text-sm text-muted md:text-base">
-          Contoh proyek dari berbagai bidang usaha. Klik kartu untuk lihat detailnya.
-        </p>
-        <PillLink href="#kontak" variant="ghost" className="mt-8">
-          Diskusikan proyekmu <Arrow />
-        </PillLink>
-      </div>
+      </Container>
 
-      {/* HP: daftar kartu biasa di bawah judul */}
-      <div className="mt-12 flex flex-col gap-5 px-6 md:hidden">
-        {works.map((w, i) => (
-          <motion.div
-            key={w.id}
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-40px' }}
-            transition={{ duration: 0.8, ease: EASE, delay: (i % 2) * 0.06 }}
+      <motion.div
+        ref={stage}
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-80px' }}
+        transition={{ duration: 1.1, ease: EASE }}
+        className="relative mt-4 cursor-grab touch-pan-y select-none overflow-hidden active:cursor-grabbing md:mt-2"
+        style={{ height: H * k }}
+      >
+        {/* Cahaya lantai tipis di bawah ring */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2"
+          style={{ background: 'radial-gradient(50% 60% at 50% 100%, rgba(255,255,255,0.06), transparent 70%)' }}
+        />
+        <div
+          className="absolute top-0 left-1/2"
+          style={{ width: W, height: H, transform: `translateX(-50%) scale(${k})`, transformOrigin: '50% 0' }}
+        >
+          <div
+            className="absolute inset-0"
+            style={{ perspective: `${R}px`, perspectiveOrigin: `${W / 2}px ${HORIZON}px`, transformStyle: 'preserve-3d' }}
           >
-            <Card w={w} className="aspect-[4/3]" />
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Desktop: dua kolom parallax melewati judul yang di-pin */}
-      <div className="pointer-events-none absolute inset-0 z-20 hidden overflow-hidden md:block">
-        <div className="mx-auto grid max-w-[1440px] grid-cols-2 gap-24 px-10 pt-[90vh] lg:gap-40">
-          <div ref={colA} className="flex flex-col items-start gap-[34vh]">
-            {left.map((w) => (
-              <Card key={w.id} w={w} className="work-card-desktop aspect-[4/5] max-w-[min(30vw,460px)]" />
-            ))}
-          </div>
-          <div ref={colB} className="flex flex-col items-end gap-[34vh] pt-[28vh]">
-            {right.map((w) => (
-              <Card key={w.id} w={w} className="work-card-desktop aspect-[4/5] max-w-[min(30vw,460px)]" />
-            ))}
+            {Array.from({ length: N }).map((_, i) => {
+              const w = works[i % works.length]
+              const unique = i < works.length
+              return (
+                <button
+                  key={i}
+                  ref={(el) => {
+                    cards.current[i] = el
+                  }}
+                  type="button"
+                  onClick={() => onCardClick(w)}
+                  tabIndex={unique ? 0 : -1}
+                  aria-hidden={unique ? undefined : true}
+                  aria-label={`Lihat detail ${w.title}`}
+                  className="group absolute cursor-pointer overflow-hidden rounded-xl bg-surface text-left will-change-transform [backface-visibility:hidden]"
+                  style={{
+                    left: W / 2,
+                    top: CARD_Y,
+                    width: 130,
+                    height: 300,
+                    margin: '-150px 0 0 -65px',
+                    visibility: 'hidden',
+                    boxShadow: '0 24px 46px rgba(0,0,0,.6), 0 3px 8px rgba(0,0,0,.5)',
+                  }}
+                >
+                  <WorkCreative work={w} />
+                  <span
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0 rounded-xl transition-shadow duration-300 group-hover:shadow-[inset_0_0_0_1px_rgba(255,255,255,.5)]"
+                    style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.14), inset 0 16px 30px rgba(255,255,255,.05)' }}
+                  />
+                </button>
+              )
+            })}
           </div>
         </div>
-      </div>
+        {/* Fade ke background di kiri, kanan, dan bawah */}
+        <div aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-[12vw] bg-gradient-to-r from-bg to-transparent" />
+        <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 w-[12vw] bg-gradient-to-l from-bg to-transparent" />
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-bg to-transparent" />
+      </motion.div>
 
       <AnimatePresence>
         {open && (
           <motion.div
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-md md:p-10"
+            className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-black/80 p-4 backdrop-blur-md md:p-10"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -153,17 +235,21 @@ export default function Works() {
               exit={{ scale: 0.95, opacity: 0 }}
               transition={{ duration: 0.5, ease: EASE }}
               onClick={(e) => e.stopPropagation()}
-              className="grid w-full max-w-4xl overflow-hidden rounded-3xl border border-stroke bg-surface md:grid-cols-[1.3fr_1fr]"
+              className="flex w-full max-w-3xl flex-col items-center gap-6 rounded-3xl border border-stroke bg-surface p-5 sm:flex-row sm:items-stretch md:gap-8 md:p-8"
             >
-              <div className="relative aspect-[4/3] md:aspect-auto md:min-h-[420px]">
-                <Visual variant={open.variant} seed={open.id} />
+              {/* Kartu diperbesar 1.5x */}
+              <div className="relative shrink-0 overflow-hidden rounded-2xl shadow-2xl shadow-black/60" style={{ width: 195, height: 450 }}>
+                <div style={{ width: 130, height: 300, transform: 'scale(1.5)', transformOrigin: '0 0', position: 'relative' }}>
+                  <WorkCreative work={open} />
+                </div>
               </div>
-              <div className="flex flex-col p-6 md:p-8">
+              <div className="flex flex-col self-stretch">
                 <p className="text-xs uppercase tracking-[0.25em] text-muted">
                   {open.kategori} · {open.bidang} · {open.tahun}
                 </p>
-                <h3 className="mt-3 font-display text-4xl italic">{open.title}</h3>
-                <p className="mt-4 text-sm text-muted">{open.desc}</p>
+                <h3 className="mt-3 font-display text-4xl italic md:text-5xl">{open.title}</h3>
+                <span className="mt-4 h-px w-12" style={{ background: open.accent }} />
+                <p className="mt-4 text-sm text-muted md:text-base">{open.desc}</p>
                 <div className="mt-auto flex flex-wrap gap-3 pt-8">
                   <PillLink href="#kontak" variant="solid" onClick={() => setOpen(null)}>
                     Mau yang serupa <Arrow />
