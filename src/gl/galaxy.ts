@@ -58,6 +58,7 @@ void main() {
 
 const FRAG = `
 precision mediump float;
+uniform float u_gain;
 varying float v_bright;
 varying float v_kind;
 varying float v_warm;
@@ -75,7 +76,9 @@ void main() {
   }
   vec3 cool = vec3(0.90, 0.93, 1.0);
   vec3 warm = vec3(1.0, 0.97, 0.92);
-  vec3 col = mix(cool, warm, v_warm) * a * v_bright;
+  // Bintang latar tidak ikut diperkuat supaya galaksi tetap jadi fokus
+  float g = v_kind > 2.5 ? 1.0 : (v_kind > 1.5 ? u_gain * 1.15 : u_gain);
+  vec3 col = mix(cool, warm, v_warm) * a * v_bright * g;
   gl_FragColor = vec4(col, 1.0);
 }
 `
@@ -134,7 +137,7 @@ function buildParticles(c: Counts, maxPoint: number) {
     const r = Math.abs(gauss()) * 0.09
     const th = rand() * Math.PI * 2
     const y = gauss() * 0.055 * (1 - Math.min(r * 4, 0.8))
-    push(r, th, y, 0.9 + rand() * 1.4, 0.05 + rand() * 0.1, 1)
+    push(r, th, y, 0.9 + rand() * 1.4, 0.035 + rand() * 0.07, 1)
   }
 
   // Kabut nebula: sprite besar redup di sepanjang lengan + glow inti
@@ -144,7 +147,8 @@ function buildParticles(c: Counts, maxPoint: number) {
     const arm = Math.floor(rand() * ARMS)
     const th = core ? rand() * Math.PI * 2 : armAngle(r, arm) + gauss() * 0.12
     const size = core ? 120 + rand() * 90 : 26 + rand() * 60 * (1.2 - r * 0.5)
-    const bright = core ? 0.03 + rand() * 0.02 : 0.03 + rand() * 0.045
+    // Glow inti dibuat redup karena posisinya tepat di belakang teks hero
+    const bright = core ? 0.012 + rand() * 0.01 : 0.03 + rand() * 0.045
     push(r, th, gauss() * 0.02, size, bright, 2)
   }
 
@@ -183,7 +187,7 @@ export function createGalaxy(canvas: HTMLCanvasElement, opts: GalaxyOptions = {}
   const small = window.innerWidth < 768
   const maxPoint = (gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE) as Float32Array)[1] / 1.5
   const { pos, meta, total } = buildParticles(
-    small ? { stars: 30000, bulge: 5000, dust: 450, field: 1400 } : { stars: 70000, bulge: 11000, dust: 900, field: 3000 },
+    small ? { stars: 48000, bulge: 6000, dust: 650, field: 1400 } : { stars: 110000, bulge: 13000, dust: 1300, field: 3000 },
     maxPoint,
   )
 
@@ -213,6 +217,7 @@ export function createGalaxy(canvas: HTMLCanvasElement, opts: GalaxyOptions = {}
   gl.uniform1f(u('u_dist'), DIST)
   gl.uniform1f(u('u_roll'), -0.16)
   gl.uniform1f(u('u_flip'), opts.flip ? 1 : 0)
+  gl.uniform1f(u('u_gain'), 1.35)
 
   gl.disable(gl.DEPTH_TEST)
   gl.enable(gl.BLEND)

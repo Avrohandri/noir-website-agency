@@ -7,7 +7,7 @@ import { Container, Italic, SectionHeader } from './ui'
 export default function Faq() {
   const [open, setOpen] = useState<number | null>(0)
   return (
-    <section id="faq" className="bg-bg py-16 md:py-24">
+    <section id="faq" className="py-16 md:py-24">
       <Container className="max-w-[900px]">
         <SectionHeader
           eyebrow="FAQ"

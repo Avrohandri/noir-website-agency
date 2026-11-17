@@ -5,7 +5,7 @@ import { Container, Italic, SectionHeader } from './ui'
 
 export default function Process() {
   return (
-    <section id="proses" className="bg-bg py-16 md:py-24">
+    <section id="proses" className="py-16 md:py-24">
       <Container>
         <SectionHeader
           eyebrow="Cara Kerja"

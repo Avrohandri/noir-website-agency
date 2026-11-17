@@ -10,6 +10,7 @@ import Navbar from './components/Navbar'
 import Pricing from './components/Pricing'
 import Process from './components/Process'
 import Services from './components/Services'
+import Starfield from './components/Starfield'
 import Stats from './components/Stats'
 import Works from './components/Works'
 
@@ -26,7 +27,8 @@ export default function App() {
     <>
       <AnimatePresence>{isLoading && <LoadingScreen onComplete={done} />}</AnimatePresence>
       <Navbar />
-      <main>
+      <Starfield />
+      <main className="relative">
         <Hero ready={!isLoading} />
         <Services />
         <Finder />

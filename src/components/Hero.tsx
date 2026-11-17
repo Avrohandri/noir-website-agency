@@ -30,12 +30,18 @@ export default function Hero({ ready }: { ready: boolean }) {
   return (
     <section id="beranda" ref={root} className="relative flex min-h-svh items-center justify-center overflow-hidden">
       <GalaxyCanvas />
-      <div className="absolute inset-0 bg-black/20" />
+      <div className="absolute inset-0 bg-black/10" />
       {/* Scrim lembut di belakang teks supaya tetap terbaca di atas lengan galaksi */}
       <div
         aria-hidden
-        className="absolute inset-0"
-        style={{ background: 'radial-gradient(38% 32% at 50% 48%, rgba(10,10,10,0.6), transparent 100%)' }}
+        className="absolute inset-0 hidden md:block"
+        style={{ background: 'radial-gradient(40% 34% at 50% 52%, rgba(10,10,10,0.72), transparent 100%)' }}
+      />
+      {/* Di HP lengan galaksi melintang tepat di belakang paragraf, jadi scrim dibuat lebih lebar */}
+      <div
+        aria-hidden
+        className="absolute inset-0 md:hidden"
+        style={{ background: 'radial-gradient(85% 26% at 50% 55%, rgba(10,10,10,0.82), transparent 100%)' }}
       />
       <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-bg to-transparent" />
 

@@ -5,7 +5,7 @@ import { Arrow, Container, Italic, PillLink, SectionHeader } from './ui'
 
 export default function Pricing() {
   return (
-    <section id="paket" className="bg-bg py-16 md:py-24">
+    <section id="paket" className="py-16 md:py-24">
       <Container>
         <SectionHeader
           eyebrow="Paket Harga"

@@ -30,7 +30,7 @@ export default function Finder() {
   }
 
   return (
-    <section id="cari-paket" className="bg-bg py-16 md:py-24">
+    <section id="cari-paket" className="py-16 md:py-24">
       <Container>
         <SectionHeader
           eyebrow="Cari Paket"

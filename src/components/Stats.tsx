@@ -23,7 +23,7 @@ function Counter({ value, suffix }: { value: number; suffix: string }) {
 
 export default function Stats() {
   return (
-    <section aria-label="Statistik" className="bg-bg py-16 md:py-24">
+    <section aria-label="Statistik" className="py-16 md:py-24">
       <Container>
         <div className="grid grid-cols-1 border-y border-stroke md:grid-cols-3">
           {stats.map((s, i) => (

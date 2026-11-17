@@ -8,7 +8,7 @@ const spans = ['md:col-span-7', 'md:col-span-5', 'md:col-span-5', 'md:col-span-7
 
 export default function Services() {
   return (
-    <section id="layanan" className="bg-bg py-12 md:py-16">
+    <section id="layanan" className="py-12 md:py-16">
       <Container>
         <SectionHeader
           eyebrow="Layanan"
