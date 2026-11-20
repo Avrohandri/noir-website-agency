@@ -255,16 +255,18 @@ export const faq = [
 ]
 
 // DUMMY: kontak contoh. Ganti dengan nomor dan email asli sebelum rilis.
+
+
 export const contact = {
   marquee: 'MEMBANGUN BISNIS DIGITAL',
   titleA: 'Siap',
   titleB: 'meluncur?',
   sub: 'Ceritakan bisnismu. Kami balas dalam 1x24 jam kerja.',
-  email: 'halo@noir-agency.example',
+  email: 'official.noiragency2026@gmail.com',
   phoneLabel: '+62 812 0000 0000',
   phoneHref: 'tel:+6281200000000',
   socials: [
-    { label: 'Instagram', href: '#' },
+    { label: 'Instagram', href: 'https://www.instagram.com/official.noiragency2026/' },
     { label: 'TikTok', href: '#' },
     { label: 'LinkedIn', href: '#' },
     { label: 'GitHub', href: '#' },
