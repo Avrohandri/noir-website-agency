@@ -46,7 +46,7 @@ export default function Contact() {
           <ul className="flex flex-wrap justify-center gap-6">
             {contact.socials.map((s) => (
               <li key={s.label}>
-                <a href={s.href} className="text-sm text-muted transition-colors hover:text-text-primary" target="_blank">
+                <a href={s.href} className="text-sm text-muted transition-colors hover:text-text-primary" target="_blank" rel="noopener noreferrer">
                   {s.label}
                 </a>
               </li>

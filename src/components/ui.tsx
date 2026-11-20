@@ -12,8 +12,10 @@ type BtnProps = {
   external?: boolean
 }
 
+const isHttp = (href: string) => /^https?:\/\//i.test(href)
 // Tombol pill dengan ring gradient di belakang saat hover (pola dari referensi)
 export function PillLink({ href, children, variant = 'outline', className = '', onClick, external}: BtnProps) {
+  const isExternal = external ?? isHttp(href)
   const base =
     'group relative isolate inline-flex items-center justify-center gap-2 rounded-full text-sm px-7 py-3.5 transition-all duration-300 hover:scale-105'
   const look =
@@ -27,8 +29,8 @@ export function PillLink({ href, children, variant = 'outline', className = '', 
       href={href}
       onClick={onClick}
       className={`${base} ${look} ${className}`}
-      target= '_blank'
-      rel= 'noreferrer' 
+      target={isExternal ? '_blank' : undefined}
+      rel={isExternal ? 'noopener noreferrer' : undefined}
     >
       <span aria-hidden className="ring-hover accent-gradient" />
       {children}

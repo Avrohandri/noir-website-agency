@@ -7,7 +7,7 @@ export function gmailCompose(
         fs: '1',
         to,
         ...(opts?.subject && {su: opts.subject}),
-        ...(opts?.body && {su: opts.body})
+        ...(opts?.body && {body: opts.body})
     })
     return `https://mail.google.com/mail/?${params.toString()}`;
 }
