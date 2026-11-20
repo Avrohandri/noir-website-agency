@@ -1,1 +1,1 @@
-export const EASE = [0.25, 0.1, 0.25, 1] as const
+export const EASE = [0.35, 0.1, 0.35, 1] as const

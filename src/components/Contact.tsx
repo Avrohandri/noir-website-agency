@@ -2,6 +2,7 @@ import gsap from 'gsap'
 import { useLayoutEffect, useRef } from 'react'
 import { brand, contact } from '../content'
 import { Arrow, Italic, PillLink } from './ui'
+import { gmailCompose } from '../lib/mail';
 
 export default function Contact() {
   const track = useRef<HTMLDivElement>(null)
@@ -32,11 +33,11 @@ export default function Contact() {
           </h2>
           <p className="mt-5 max-w-md text-sm text-muted md:text-base">{contact.sub}</p>
           <div className="mt-10 flex flex-wrap justify-center gap-4">
-            <PillLink href={`mailto:${contact.email}`} variant="solid">
-              {contact.email} <Arrow />
+            <PillLink href={gmailCompose(contact.email, { subject: 'Halo Noir Agency' })} variant="solid">
+            Email Us<Arrow />
             </PillLink>
             <PillLink href={contact.phoneHref} variant="outline">
-              {contact.phoneLabel}
+              Contact Us
             </PillLink>
           </div>
         </div>
@@ -45,7 +46,7 @@ export default function Contact() {
           <ul className="flex flex-wrap justify-center gap-6">
             {contact.socials.map((s) => (
               <li key={s.label}>
-                <a href={s.href} className="text-sm text-muted transition-colors hover:text-text-primary">
+                <a href={s.href} className="text-sm text-muted transition-colors hover:text-text-primary" target="_blank">
                   {s.label}
                 </a>
               </li>
