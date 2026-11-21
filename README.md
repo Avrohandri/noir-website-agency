@@ -14,3 +14,4 @@ npm run dev
 npm run build
 npm run lint
 ```
+Latihan PR pertama.
