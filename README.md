@@ -1,7 +1,5 @@
 # NOIR Website Agency
 
-Landing page agency jasa pembuatan website dengan tema noir dan nebula monokrom.
-
 Proyek ini melanjutkan [urDrek0/noir-company-profile](https://github.com/urDrek0/noir-company-profile).
 
 ## Stack
@@ -16,7 +14,3 @@ npm run dev
 npm run build
 npm run lint
 ```
-
-## Konten
-
-Semua copy dan data ada di `src/content.ts`. Harga, portofolio, statistik, FAQ, dan kontak masih data dummy. Ganti sebelum rilis.
